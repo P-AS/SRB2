@@ -19,6 +19,10 @@
 #include <emscripten.h>
 #endif
 
+#ifdef IOS
+#include "sdl/ios/ios_resources.h"
+#endif
+
 #if defined (__unix__) || defined (__APPLE__) || defined (UNIXCOMMON)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1360,7 +1364,11 @@ void D_SRB2Main(void)
 		{
 			// use user specific config file
 #ifdef DEFAULTDIR
+#ifdef IOS
+			snprintf(srb2home, sizeof srb2home, "%s", iOS_GetHomePath());
+#else
 			snprintf(srb2home, sizeof srb2home, "%s" PATHSEP DEFAULTDIR, userhome);
+#endif
 			snprintf(downloaddir, sizeof downloaddir, "%s" PATHSEP "DOWNLOAD", srb2home);
 			if (dedicated)
 				snprintf(configfile, sizeof configfile, "%s" PATHSEP "d"CONFIGFILENAME, srb2home);

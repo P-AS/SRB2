@@ -111,6 +111,7 @@ static pauseddownload_t *pauseddownload = NULL;
 
 file_download_t filedownload;
 
+#ifdef HAVE_CURL
 static CURL *http_handle;
 static char curl_errbuf[CURL_ERROR_SIZE];
 static CURLM *multi_handle;
@@ -123,6 +124,7 @@ static UINT32 curl_origtotalfilesize;
 static char *curl_realname = NULL;
 static fileneeded_t *curl_curfile = NULL;
 HTTP_login *curl_logins;
+#endif
 
 luafiletransfer_t *luafiletransfers = NULL;
 boolean waitingforluafiletransfer = false;
@@ -1586,6 +1588,7 @@ void Command_Downloads_f(void)
 		}
 }
 
+#ifdef HAVE_CURL
 static size_t curlwrite_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
     return fwrite(ptr, size, nmemb, stream);
@@ -1601,9 +1604,11 @@ static int curlprogress_callback(void *clientp, curl_off_t dltotal, curl_off_t d
 	getbytes = ((double)dlnow) / (time(NULL) - curl_starttime); // To-do: Make this more accurate???
 	return 0;
 }
+#endif
 
 boolean CURLPrepareFile(const char* url, int dfilenum)
 {
+#ifdef HAVE_CURL
 	HTTP_login *login;
 	CURLcode cc;
 
@@ -1731,6 +1736,7 @@ boolean CURLPrepareFile(const char* url, int dfilenum)
 	}
 
 	filedownload.http_running = false;
+#endif
 
 	return false;
 }
@@ -1747,6 +1753,7 @@ void CURLAbortFile(void)
 void CURLGetFile(void)
 {
 	I_lock_mutex(&downloadmutex);
+#ifdef HAVE_CURL
 	CURLMcode mc; /* return code used by curl_multi_wait() */
 	CURLcode easyres; /* Return from easy interface */
 	CURLMsg *m; /* for picking up messages with the transfer status */
@@ -1853,12 +1860,14 @@ void CURLGetFile(void)
 		multi_handle = NULL;
 	}
 	filedownload.http_running = false;
+#endif
 	I_unlock_mutex(downloadmutex);
 }
 
 HTTP_login *
 CURLGetLogin (const char *url, HTTP_login ***return_prev_next)
 {
+#ifdef HAVE_CURL
 	HTTP_login  * login;
 	HTTP_login ** prev_next;
 
@@ -1875,6 +1884,7 @@ CURLGetLogin (const char *url, HTTP_login ***return_prev_next)
 			return login;
 		}
 	}
+#endif
 
 	return NULL;
 }

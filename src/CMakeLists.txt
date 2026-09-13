@@ -149,6 +149,14 @@ target_compile_features(SRB2SDL2 PRIVATE c_std_23 cxx_std_17)
 set(SRB2_CONFIG_DEV_BUILD OFF CACHE BOOL
 	"Compile a development build of SRB2.")
 
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+	set(SRB2_CONFIG_USE_INTERNAL_LIBRARIES ON)
+	set(SRB2_CONFIG_HWRENDER OFF)
+	set(SRB2_CONFIG_LTO ON)
+	set(SRB2_CONFIG_EXECINFO OFF)
+	set(SRB2_CONFIG_HAVE_PNG ON)
+endif()
+
 add_subdirectory(blua)
 add_subdirectory(netcode)
 
@@ -179,6 +187,10 @@ endif()
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 	target_compile_definitions(SRB2SDL2 PRIVATE -DMACOSX)
+endif()
+
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+	add_definitions(-DIOS)
 endif()
 
 if("${SRB2_CONFIG_USE_GME}")

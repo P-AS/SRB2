@@ -91,11 +91,44 @@ endif()
 
 
 find_package(ZLIB REQUIRED)
-find_package(PNG REQUIRED)
-find_package(CURL REQUIRED)
-find_package(libopenmpt QUIET)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(PNG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/thirdparty/libpng/iOS/include")
+    set(PNG_LIBRARIES "${CMAKE_SOURCE_DIR}/thirdparty/libpng/iOS/libpng.xcframework")
+
+    if(NOT TARGET PNG::PNG)
+        add_library(PNG::PNG STATIC IMPORTED GLOBAL)
+
+        set_target_properties(PNG::PNG PROPERTIES
+            IMPORTED_LOCATION "${PNG_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
+			INTERFACE_LINK_LIBRARIES ZLIB::ZLIB
+        )
+    endif()
+else()
+    find_package(PNG REQUIRED)
+endif()
+
+# curl go bye bye
+#find_package(CURL REQUIRED)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(OPENMPT_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/thirdparty/libopenmpt/iOS/include")
+    set(OPENMPT_LIBRARIES "${CMAKE_SOURCE_DIR}/thirdparty/libopenmpt/iOS/libopenmpt.xcframework")
+
+    if(NOT TARGET libopenmpt::libopenmpt)
+        add_library(libopenmpt::libopenmpt STATIC IMPORTED GLOBAL)
+
+        set_target_properties(libopenmpt::libopenmpt PROPERTIES
+            IMPORTED_LOCATION "${OPENMPT_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${OPENMPT_INCLUDE_DIRS}"
+        )
+    endif()
+else()
+    find_package(libopenmpt QUIET)
+endif()
+
 if("${SRB2_CONFIG_USE_GME}")
-	find_package(libgme QUIET)
+    find_package(libgme QUIET)
 endif()
 find_package(miniupnpc QUIET)
 

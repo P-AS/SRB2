@@ -907,6 +907,7 @@ static void PT_Login(SINT8 node, INT32 netconsole)
   */
 static void Command_set_http_login (void)
 {
+#ifdef HAVE_CURL
 	HTTP_login  *login;
 	HTTP_login **prev_next;
 
@@ -945,6 +946,7 @@ static void Command_set_http_login (void)
 		login->next = curl_logins;
 		curl_logins = login;
 	}
+#endif
 }
 
 /** List logins for HTTP downloads.
@@ -953,6 +955,7 @@ static void Command_set_http_login (void)
   */
 static void Command_list_http_logins (void)
 {
+#ifdef HAVE_CURL
 	HTTP_login *login;
 
 	for (
@@ -966,6 +969,7 @@ static void Command_list_http_logins (void)
 				login->auth
 		);
 	}
+#endif
 }
 
 static void PT_AskLuaFile(SINT8 node)

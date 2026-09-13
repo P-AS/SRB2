@@ -895,7 +895,11 @@ static void Impl_HandleJoystickAxisEvent(SDL_JoyAxisEvent evt)
 	{
 		evt.axis--;
 		event.key = evt.axis / 2;
+#if defined(__APPLE__)
+		event.y = -SDLJoyAxis(evt.value, event.type);
+#else
 		event.y = SDLJoyAxis(evt.value, event.type);
+#endif
 	}
 	D_PostEvent(&event);
 }

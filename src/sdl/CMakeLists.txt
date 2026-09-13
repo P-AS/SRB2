@@ -188,6 +188,10 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES Darwin)
 	)
 endif()
 
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+	target_sources(SRB2SDL2 PRIVATE ios/ios_resources.c ios/ios_resources.h)
+endif()
+
 if("${CMAKE_SYSTEM_NAME}" MATCHES Windows)
 	set_target_properties(SRB2SDL2 PROPERTIES OUTPUT_NAME srb2win)
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES Linux)
@@ -215,6 +219,28 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES Darwin)
 	)
 endif()
 
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+	set_target_properties(SRB2SDL2 PROPERTIES
+		OUTPUT_NAME "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}"
+		MACOSX_BUNDLE_BUNDLE_NAME "Sonic Robo Blast 2"
+		MACOSX_BUNDLE_BUNDLE_VERSION ${SRB2_VERSION}
+		MACOSX_BUNDLE_GUI_IDENTIFIER "org.stjr.srb2"
+		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.stjr.srb2"
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist.in"
+	)
+
+	target_compile_definitions(SRB2SDL2 PRIVATE -DSDLMAIN)
+
+	set(SRB2_IOS_FRAMEWORKS UIKit Foundation CoreFoundation CoreGraphics QuartzCore CoreAudio AudioToolbox AVFoundation CoreMotion GameController CoreHaptics CoreBluetooth Metal OpenGLES)
+
+	foreach(fwname ${SRB2_IOS_FRAMEWORKS})
+		find_library(SRB2_IOS_FRAMEWORK_${fwname} ${fwname})
+		target_link_libraries(SRB2SDL2 PRIVATE ${SRB2_IOS_FRAMEWORK_${fwname}})
+	endforeach()
+
+	target_link_libraries(SRB2SDL2 PRIVATE c++)
+endif()
+
 if("${CMAKE_SYSTEM_NAME}" MATCHES Windows)
 	target_link_libraries(SRB2SDL2 PRIVATE SDL2::SDL2main)
 endif()
@@ -232,8 +258,27 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES Windows)
 	)
 endif()
 
-find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2 REQUIRED)
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+	set(SDL2_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/thirdparty/SDL2/iOS/include")
+	set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/thirdparty/SDL2/iOS/SDL2.xcframework")
+
+	if(NOT TARGET SDL2::SDL2)
+		add_library(SDL2::SDL2 STATIC IMPORTED GLOBAL)
+		set_target_properties(SDL2::SDL2 PROPERTIES
+			IMPORTED_LOCATION "${SDL2_LIBRARY}"
+			INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIR}"
+		)
+	endif()
+
+	# need sdl2 main aswell
+	if(NOT TARGET SDL2main) 
+		add_library(SDL2main STATIC IMPORTED GLOBAL) 
+		set_target_properties(SDL2main PROPERTIES IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/thirdparty/SDL2/iOS/SDL2main.xcframework" ) 
+	endif()
+else()
+	find_package(SDL2 CONFIG REQUIRED)
+	find_package(SDL2 REQUIRED)
+endif()
 if(TARGET SDL2main)
 	target_link_libraries(SRB2SDL2 PRIVATE SDL2main)
 endif()
@@ -263,8 +308,33 @@ if(TARGET SDL2_mixer_ext::SDL2_mixer_ext OR TARGET SDL2_mixer_ext::SDL2_mixer_ex
 	message(STATUS "SDL2_mixer_ext found, skipping SDL2_mixer")
 else()
 	message(STATUS "SDL2_mixer_ext not found, going to try SDL2_mixer")
+if(${CMAKE_SYSTEM} MATCHES "iOS")
+    set(SDL2_MIXER_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/thirdparty/SDL2_mixer/iOS/include)
+    set(SDL2_MIXER_ROOT "${CMAKE_SOURCE_DIR}/thirdparty/SDL2_mixer/iOS")
+
+    set(SDL2_MIXER_LIBRARIES
+        "${SDL2_MIXER_ROOT}/SDL2_mixer.xcframework"
+        "${SDL2_MIXER_ROOT}/opusfile.xcframework"
+        "${SDL2_MIXER_ROOT}/opus.xcframework"
+        "${SDL2_MIXER_ROOT}/vorbisfile.xcframework"
+        "${SDL2_MIXER_ROOT}/vorbis.xcframework"
+        "${SDL2_MIXER_ROOT}/ogg.xcframework"
+        "${SDL2_MIXER_ROOT}/xmp.xcframework"
+        "${SDL2_MIXER_ROOT}/wavpack.xcframework"
+    )
+
+    if(NOT TARGET SDL2_mixer::SDL2_mixer)
+        add_library(SDL2_mixer::SDL2_mixer INTERFACE IMPORTED GLOBAL)
+
+        set_target_properties(SDL2_mixer::SDL2_mixer PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${SDL2_MIXER_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${SDL2_MIXER_INCLUDE_DIRS}"
+        )
+    endif()
+elseif()
 	find_package(SDL2_mixer CONFIG QUIET)
 	find_package(SDL2_mixer QUIET)
+endif()
 	if(TARGET SDL2_mixer::SDL2_mixer OR TARGET SDL2_mixer::SDL2_mixer-static OR TARGET SDL2_mixer OR TARGET SDL2_mixer_Static)
 		if(NOT TARGET SDL2_mixer::SDL2_mixer-static AND TARGET SDL2_mixer_Static)
 		add_library(SDL2_mixer::SDL2_mixer-static ALIAS SDL2_mixer_Static)
@@ -312,7 +382,7 @@ else()
 endif()
 
 #### Installation ####
-if("${CMAKE_SYSTEM_NAME}" MATCHES Darwin)
+if("${CMAKE_SYSTEM_NAME}" MATCHES Darwin OR ${CMAKE_SYSTEM} MATCHES "iOS")
 	install(TARGETS SRB2SDL2
 		BUNDLE DESTINATION .
 	)
