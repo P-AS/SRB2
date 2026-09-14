@@ -452,14 +452,24 @@ if(${CMAKE_SYSTEM} MATCHES Darwin AND NOT ${SRB2_CONFIG_DEDICATED})
 	else()
 		set(SRB2_MACOS_ICON_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}")
 	endif()
+	# actool also generates a flattened, legacy-compatible srb2.icns
+	# fallback right alongside Assets.car (verified: it contains the ic04-
+	# ic10 representations that have been the standard icns payload since
+	# Lion/10.7, plus newer ic11-ic14 Retina variants -- pre-10.13 systems,
+	# which don't understand CFBundleIconName/Assets.car at all, need
+	# CFBundleIconFile pointing at it to show any icon). actool's
+	# --output-partial-info-plist reports both CFBundleIconName and
+	# CFBundleIconFile for this reason; macosx/Info.plist.in only has the
+	# former, so merge the latter in too instead of discarding it.
 	add_custom_command(TARGET SRB2SDL2 POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:SRB2SDL2>/Resources"
 		COMMAND xcrun actool --compile "$<TARGET_BUNDLE_CONTENT_DIR:SRB2SDL2>/Resources"
 			--platform macosx
 			--minimum-deployment-target "${SRB2_MACOS_ICON_DEPLOYMENT_TARGET}"
 			--app-icon srb2
-			--output-partial-info-plist /dev/null
+			--output-partial-info-plist "${CMAKE_CURRENT_BINARY_DIR}/icon-partial-info.plist"
 			"${CMAKE_CURRENT_SOURCE_DIR}/sdl/srb2.icon"
+		COMMAND /usr/libexec/PlistBuddy -c "Merge ${CMAKE_CURRENT_BINARY_DIR}/icon-partial-info.plist :" "$<TARGET_BUNDLE_CONTENT_DIR:SRB2SDL2>/Info.plist"
 		VERBATIM
 	)
 endif()
