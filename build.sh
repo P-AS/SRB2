@@ -14,6 +14,15 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$HERE/build-ios/device"
 DEPLOYMENT_TARGET=15.0
 
+# Every `find ... -iname "*.app" | head -1` below assumes there's exactly
+# one .app under bin/Release -- the one this build produces. A stale one
+# left over from a previous build under a different name (an older git
+# branch, or a since-fixed bug in the CMake asset-install destination)
+# can silently win that race instead, packaging a broken .app into the
+# .ipa -- this has actually happened. Clearing it up front removes the
+# ambiguity entirely.
+rm -rf "$BUILD_DIR/bin/Release"
+
 cmake -S "$HERE" -B "$BUILD_DIR" -G Xcode \
 	-DCMAKE_TOOLCHAIN_FILE="$HERE/cmake/Modules/ios.toolchain.cmake" \
 	-DPLATFORM=OS64 \

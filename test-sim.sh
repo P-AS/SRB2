@@ -64,6 +64,14 @@ DEVICE_NAME="${DEVICE_NAME:-iPhone 18 Pro Max}"
 if [ "$SKIP_BUILD" -eq 1 ]; then
 	echo "==> skipping configure+build (--no-build)"
 else
+	# Every `find ... -iname "*.app" | head -1` below assumes there's
+	# exactly one .app under bin/Release -- the one this build produces. A
+	# stale one left over from a previous build under a different name (an
+	# older git branch, or a since-fixed bug in the CMake asset-install
+	# destination) can silently win that race instead -- this has actually
+	# happened. Clearing it up front removes the ambiguity entirely.
+	rm -rf "$BUILD_DIR/bin/Release"
+
 	echo "==> configuring"
 	cmake -S "$HERE" -B "$BUILD_DIR" -G Xcode \
 		-DCMAKE_TOOLCHAIN_FILE="$HERE/cmake/Modules/ios.toolchain.cmake" \
