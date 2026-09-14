@@ -226,7 +226,7 @@ endif()
 if(${CMAKE_SYSTEM} MATCHES "iOS")
 	set_target_properties(SRB2SDL2 PROPERTIES
 		OUTPUT_NAME "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}"
-		MACOSX_BUNDLE_BUNDLE_NAME "Sonic Robo Blast 2"
+		MACOSX_BUNDLE_BUNDLE_NAME "SRB2"
 		MACOSX_BUNDLE_BUNDLE_VERSION ${SRB2_VERSION}
 		MACOSX_BUNDLE_GUI_IDENTIFIER "org.stjr.srb2"
 		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.stjr.srb2"
@@ -275,9 +275,9 @@ if(${CMAKE_SYSTEM} MATCHES "iOS")
 	endif()
 
 	# need sdl2 main aswell
-	if(NOT TARGET SDL2main) 
-		add_library(SDL2main STATIC IMPORTED GLOBAL) 
-		set_target_properties(SDL2main PROPERTIES IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/thirdparty/SDL2/iOS/SDL2main.xcframework" ) 
+	if(NOT TARGET SDL2main)
+		add_library(SDL2main STATIC IMPORTED GLOBAL)
+		set_target_properties(SDL2main PROPERTIES IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/thirdparty/SDL2/iOS/SDL2main.xcframework" )
 	endif()
 else()
 	find_package(SDL2 CONFIG REQUIRED)
