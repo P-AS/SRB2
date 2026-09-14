@@ -19,8 +19,8 @@ cmake -S "$HERE" -B "$BUILD_DIR" -G Xcode \
 	-DPLATFORM=OS64 \
 	-DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" \
 	-DSRB2_CONFIG_EXTERNAL_ASSETS=ON \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DSRB2_CONFIG_ASSET_DIRECTORY="assets"
+	-DSRB2_CONFIG_ASSET_DIRECTORY="$HERE/assets/installer" \
+	-DCMAKE_BUILD_TYPE=Release
 
 # -allowProvisioningUpdates lets xcodebuild auto-create/download a
 # provisioning profile for automatic signing on the command line -- Xcode's

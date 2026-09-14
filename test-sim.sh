@@ -27,8 +27,12 @@ export AR="$XCODE_TOOLCHAIN/ar"
 export RANLIB="$XCODE_TOOLCHAIN/ranlib"
 export STRIP="$XCODE_TOOLCHAIN/strip"
 export NM="$XCODE_TOOLCHAIN/nm"
-export LD="$XCODE_TOOLCHAIN/ld"
 export INSTALL_NAME_TOOL="$XCODE_TOOLCHAIN/install_name_tool"
+# NOTE: deliberately not exporting LD. With the Xcode generator + this
+# ios.toolchain.cmake, an LD env var makes CMake's C-compiler-identification
+# step resolve CMAKE_C_COMPILER to $LD instead of clang (CXX is unaffected),
+# so "target_compile_features" fails with "no known features for C
+# compiler". Xcode's own build system handles linking regardless.
 
 echo "==> developer dir: $DEVELOPER_DIR"
 echo "==> cmake: $(command -v cmake)"
@@ -66,6 +70,7 @@ else
 		-DPLATFORM=SIMULATORARM64 \
 		-DDEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" \
 		-DSRB2_CONFIG_EXTERNAL_ASSETS=ON \
+		-DSRB2_CONFIG_ASSET_DIRECTORY="$HERE/assets/installer" \
 		-DCMAKE_BUILD_TYPE=Release
 
 	echo "==> building"
