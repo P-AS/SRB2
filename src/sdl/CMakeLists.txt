@@ -337,7 +337,7 @@ if(${CMAKE_SYSTEM} MATCHES "iOS")
             INTERFACE_INCLUDE_DIRECTORIES "${SDL2_MIXER_INCLUDE_DIRS}"
         )
     endif()
-elseif()
+else()
 	find_package(SDL2_mixer CONFIG QUIET)
 	find_package(SDL2_mixer QUIET)
 endif()
