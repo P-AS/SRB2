@@ -71,6 +71,10 @@ typedef BOOL (WINAPI *p_IsDebuggerPresent)(VOID);
 #endif
 
 #ifdef LOGMESSAGES
+#ifdef IOS
+#include "ios/ios_resources.h"
+#endif
+
 static void InitLogging(void)
 {
 	const char *logdir = NULL;
@@ -80,11 +84,15 @@ static void InitLogging(void)
 	const char *reldir;
 	int left;
 	boolean fileabs;
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined(IOS)
 	const char *link;
 #endif
 
+#ifndef IOS
 	logdir = D_Home();
+#else
+	logdir = iOS_GetHomePath();
+#endif
 
 	my_time = time(NULL);
 	timeinfo = localtime(&my_time);
@@ -117,11 +125,18 @@ static void InitLogging(void)
 					"%s"PATHSEP, reldir);
 		}
 		else
-#ifdef DEFAULTDIR
+#if defined(DEFAULTDIR) && !defined(IOS)
 		if (logdir)
 		{
 			left = snprintf(logfilename, sizeof logfilename,
 					"%s"PATHSEP DEFAULTDIR PATHSEP"%s"PATHSEP, logdir, reldir);
+		}
+		else
+#else
+		if (logdir)
+		{
+			left = snprintf(logfilename, sizeof logfilename,
+					"%s"PATHSEP"%s"PATHSEP, logdir, reldir);
 		}
 		else
 #endif/*DEFAULTDIR*/
@@ -140,6 +155,7 @@ static void InitLogging(void)
 
 #if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 	logstream = fopen(logfilename, "w");
+#ifndef IOS
 #ifdef DEFAULTDIR
 	if (logdir)
 		link = va("%s/"DEFAULTDIR"/latest-log.txt", logdir);
@@ -151,6 +167,7 @@ static void InitLogging(void)
 	{
 		I_OutputMsg("Error symlinking latest-log.txt: %s\n", strerror(errno));
 	}
+#endif/*!IOS*/
 #else/*defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)*/
 	logstream = fopen("latest-log.txt", "wt+");
 #endif/*defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)*/
