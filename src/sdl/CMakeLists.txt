@@ -231,6 +231,8 @@ if(${CMAKE_SYSTEM} MATCHES "iOS")
 		MACOSX_BUNDLE_GUI_IDENTIFIER "org.stjr.srb2"
 		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.stjr.srb2"
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist.in"
+		# must be set here since Xcode overwrites the setting in Info.plist.in
+		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 	)
 
 	target_compile_definitions(SRB2SDL2 PRIVATE -DSDLMAIN)
