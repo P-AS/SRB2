@@ -1679,6 +1679,11 @@ static SDL_bool Impl_CreateWindow(SDL_bool fullscreen)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 #endif
 
+#ifdef IOS
+	// iOS requires apps to size their content based on screen coordinates rather than content size.
+	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
+
 	// Create a window
 	window = SDL_CreateWindow("SRB2 "VERSIONSTRING, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			realwidth, realheight, flags);
