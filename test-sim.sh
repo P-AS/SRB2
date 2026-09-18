@@ -59,7 +59,7 @@ while [ $# -gt 0 ]; do
 			;;
 	esac
 done
-DEVICE_NAME="${DEVICE_NAME:-iPhone 18 Pro Max}"
+DEVICE_NAME="${DEVICE_NAME:-iPhone 18 Pro}"
 
 if [ "$SKIP_BUILD" -eq 1 ]; then
 	echo "==> skipping configure+build (--no-build)"

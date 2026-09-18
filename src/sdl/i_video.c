@@ -1684,6 +1684,10 @@ static SDL_bool Impl_CreateWindow(SDL_bool fullscreen)
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
 
+#if defined(__ANDROID__) || defined(IOS)
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+#endif
+
 	// Create a window
 	window = SDL_CreateWindow("SRB2 "VERSIONSTRING, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			realwidth, realheight, flags);
