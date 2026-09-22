@@ -325,7 +325,6 @@ if(${CMAKE_SYSTEM} MATCHES "iOS")
         "${SDL2_MIXER_ROOT}/vorbisfile.xcframework"
         "${SDL2_MIXER_ROOT}/vorbis.xcframework"
         "${SDL2_MIXER_ROOT}/ogg.xcframework"
-        "${SDL2_MIXER_ROOT}/xmp.xcframework"
         "${SDL2_MIXER_ROOT}/wavpack.xcframework"
     )
 
